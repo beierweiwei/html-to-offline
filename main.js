@@ -59,6 +59,8 @@ function replace(text, replaceArr, tplVarsMap) {
  *      不做修改
  *   2.3 源路径使用/绝对路径
  *      向上查找dist下的一级目录如 /test
+ * 
+ *   
  */
 function transUrlToLocalPath(originUrl, filePath) {
 
@@ -80,6 +82,9 @@ function transUrlToLocalPath(originUrl, filePath) {
   return  target
 }
 
+function replacePathForWebpack (filePath) {
+
+}
 function defaultReplaceUrl(text, filePath) {
   return text.replace(/(href=|link=|src=|url\()("|')((https?:)?\/\/|\/)([^\/"']+)/g, function(match, p1, p2, proto, p4, host) {
     let res =  p1 + p2 + transUrlToLocalPath(proto+host, filePath)
@@ -94,6 +99,10 @@ function replaceTplVar(tpl, varsMap = {}) {
   })
   return tpl
 }
+/**
+ * 
+ * @param {*} path 
+ */
 function replaceFileText (path) {
   let replaceArr = options.replaceArr
   let text = readFileSync(path, {encoding: 'utf-8'})
@@ -107,6 +116,8 @@ function replaceFileText (path) {
   }
   // text = replace(text, replaceArr, tplVarsMap)
   text = defaultReplaceUrl(text, path)
+  // 替换js中webpack__require路径
+  text = replacePathForWebpack(path)
   writeFileToOutput(path, text)
 }
 
@@ -132,6 +143,9 @@ function getRelativeToOutput (path) {
 }
 function isHtml (file) {
   return ['.html', '.js', '.css'].includes(extname(file))
+}
+function isJs(file) {
+
 }
 function isHttp (url) {
   return /^(https?:)?\/\//.test(url)
